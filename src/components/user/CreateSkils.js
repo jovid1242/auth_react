@@ -1,22 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 
 import Modal from "../modal/Modal";
 import "../../styles/createSkils.scss";
 
-export default function CreateSkils() {
-  const [modal, setModal] = useState(true);
-
-  const showModal = () => {
-    setModal(true);
-  };
-
-  const hideModal = () => {
-    setModal(false);
-  };
+export default function CreateSkils({ visibily, hideModal }) {
   return (
     <div>
       <Modal
-        visibily={modal}
+        visibily={visibily}
         hide={hideModal}
         title={"Навыки"}
         content={

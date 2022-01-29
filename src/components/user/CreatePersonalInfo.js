@@ -1,30 +1,85 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Select from "react-select";
 
 import Modal from "../modal/Modal";
+import http from "../../http";
+
 import "../../styles/createPersonalInfo.scss";
 
-const options = [
-  { value: "chocolate", label: "Chocolate" },
-  { value: "strawberry", label: "Strawberry" },
-  { value: "vanilla", label: "Vanilla" },
-];
+const areaOptions = [];
+const countryOption = [];
+const citiOption = [];
 
-export default function CreatePersonalInfo() {
-  const [modal, setModal] = useState(true);
-  const [selectedOption, setSelectedOption] = useState(null);
+export default function CreatePersonalInfo({ visibily, hideModal }) {
+  const [selectedcountryOption, setSelectedcountryOption] = useState({
+    value: "Q159",
+  });
+  const [selectAreaOptions, setSelectAreaOptions] = useState({
+    name: "Воро",
+    countryId: "Q159",
+    regionCode: "VOR",
+  });
+  const [selectedCitiOption, setSelectedCitiOption] = useState(null);
 
-  const showModal = () => {
-    setModal(true);
-  };
+  useEffect(() => {
+    http
+      .post("location/country", {
+        name: "Ру",
+        languageCode: "RU",
+      })
+      .then((response) => {
+        response.data.data.map((el) => {
+          countryOption.push({
+            value: el.wikiDataId,
+            label: el.name,
+            code: el.code,
+            name: el.currencyCodes[0],
+          });
+        });
+      });
+  }, []);
 
-  const hideModal = () => {
-    setModal(false);
-  };
+  useEffect(() => {
+    http
+      .post("location/region", {
+        name: selectedcountryOption.name,
+        languageCode: "RU",
+        countryId: selectedcountryOption.value,
+      })
+      .then((response) => {
+        response.data.data.map((el) => {
+          areaOptions.push({
+            value: el.countryCode,
+            label: el.name,
+            regionCode: el.isoCode,
+            name: el.name,
+          });
+        });
+      });
+  }, [selectedcountryOption]);
+
+  useEffect(() => {
+    http
+      .post("location/city", {
+        name: selectAreaOptions.name,
+        languageCode: "RU",
+        countryId: selectedcountryOption.value,
+        regionCode: selectAreaOptions.regionCode,
+      })
+      .then((response) => {
+        response.data.data.map((el) => {
+          citiOption.push({
+            value: el.countryCode,
+            label: el.name,
+          });
+        });
+      });
+  }, [selectAreaOptions]);
+
   return (
     <div>
       <Modal
-        visibily={modal}
+        visibily={visibily}
         hide={hideModal}
         title={"Личные данные"}
         content={
@@ -44,12 +99,12 @@ export default function CreatePersonalInfo() {
                 <input type="text" className="__input" placeholder="Отчество" />
               </div>
               <div className="input_group">
-                <Select
+                {/* <Select
                   defaultValue={selectedOption}
                   onChange={setSelectedOption}
-                  options={options}
+                  options={selectedOption}
                   placeholder="Пол"
-                />
+                /> */}
               </div>
               <div className="input_group">
                 <input
@@ -57,38 +112,38 @@ export default function CreatePersonalInfo() {
                   className="__input"
                   id="start"
                   name="trip-start"
-                  value="2002-12-08"
+                  defaultValue="2002-12-08"
                 ></input>
               </div>
               <div className="input_group">
-                <Select
+                {/* <Select
                   defaultValue={selectedOption}
                   onChange={setSelectedOption}
-                  options={options}
+                  options={selectedOption}
                   placeholder="Статус"
+                /> */}
+              </div>
+              <div className="input_group">
+                <Select
+                  defaultValue={selectedcountryOption}
+                  onChange={setSelectedcountryOption}
+                  options={countryOption}
+                  placeholder="Страна"
                 />
               </div>
               <div className="input_group">
                 <Select
-                  defaultValue={selectedOption}
-                  onChange={setSelectedOption}
-                  options={options}
-                  placeholder="Россия"
-                />
-              </div>
-              <div className="input_group">
-                <Select
-                  defaultValue={selectedOption}
-                  onChange={setSelectedOption}
-                  options={options}
+                  defaultValue={selectAreaOptions}
+                  onChange={setSelectAreaOptions}
+                  options={areaOptions}
                   placeholder="Регион"
                 />
               </div>
               <div className="input_group">
                 <Select
-                  defaultValue={selectedOption}
-                  onChange={setSelectedOption}
-                  options={options}
+                  defaultValue={selectedCitiOption}
+                  onChange={setSelectedCitiOption}
+                  options={citiOption}
                   placeholder="Город"
                 />
               </div>

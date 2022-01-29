@@ -10,6 +10,8 @@ export default function Confirmation() {
   const [startValue, setStartValue] = useState("");
   const [andValue, setAndValue] = useState("");
 
+  const user = JSON.parse(localStorage.getItem("user"));
+
   let navigate = useNavigate();
 
   const notifySuccess = (txt) => toast.success(txt);
@@ -30,17 +32,17 @@ export default function Confirmation() {
   const sendForm = () => {
     if (andValue.length === 3) {
       http
-        .post("signup/confirm", {
-          userId: 96,
+        .post("sso/signup/confirm", {
+          userId: user.id,
           confirmationCode: `${startValue}-${andValue}`,
         })
         .then((response) => {
           http
-            .post("signup/activate/personal", {
-              userId: 96,
+            .post("sso/signup/activate/personal", {
+              userId: user.id,
               firstname: "Test",
               lastname: "Testoff",
-              login: "sp1i3ighrr@coffeetimer24.com",
+              login: user.username,
               confirmationCode: `${startValue}-${andValue}`,
             })
             .then(() => {
@@ -70,21 +72,21 @@ export default function Confirmation() {
             className="code-input"
             maxLength="1"
             onChange={handleInput}
-            placeholder="1"
+            placeholder="0"
           />
           <input
             type="text"
             className="code-input"
             onChange={handleInput}
             maxLength="1"
-            placeholder="2"
+            placeholder="0"
           />
           <input
             type="text"
             className="code-input"
             maxLength="1"
             onChange={handleInput}
-            placeholder="3"
+            placeholder="0"
           />
           <div className="code">-</div>
           <input
@@ -92,21 +94,21 @@ export default function Confirmation() {
             className="code-input"
             maxLength="1"
             onChange={handleInput}
-            placeholder="4"
+            placeholder="0"
           />
           <input
             type="text"
             className="code-input"
             maxLength="1"
             onChange={handleInput}
-            placeholder="5"
+            placeholder="0"
           />
           <input
             type="text"
             className="code-input"
             maxLength="1"
             onChange={handleInput}
-            placeholder="6"
+            placeholder="0"
           />
         </form>
       </div>

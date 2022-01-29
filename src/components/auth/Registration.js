@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import http from "../../http";
 import { ToastContainer, toast } from "react-toastify";
+import lStorage from "./LStorage";
 import { useNavigate } from "react-router-dom";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -32,16 +33,17 @@ export default function Registration() {
     e.preventDefault();
     if (user.password === user.conpassword) {
       http
-        .post("signup", user)
+        .post("sso/signup", user)
         .then((response) => {
           notifySuccess("Успешно");
+          lStorage.RegisterStorage({
+            id: response.data.id,
+            username: user.username,
+          });
           navigate("/confirm");
         })
         .catch((err) => {
-          console.log("Ошибка", err);
-        })
-        .finally(() => {
-          notifyError("Что-то пошло не так");
+          notifyError("Пользователь уже существует");
         });
     } else {
       notifyError("Пароль не совподают");

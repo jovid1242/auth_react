@@ -30,13 +30,18 @@ export default function Login() {
   const submitForm = (e) => {
     e.preventDefault();
     http
-      .post("signin", user)
+      .post("sso/signin", user)
       .then((response) => {
         notifySuccess("Успешно");
+        lStorage.LoginStorage({
+          id: response.data.id,
+          username: response.data.username,
+          token: response.data.token,
+        });
         navigate("/profile");
       })
       .catch((err) => {
-        console.log("Ошибка", err);
+        notifyError("Ошибка", err);
       });
   };
 
@@ -63,7 +68,7 @@ export default function Login() {
               <div className="form__group">
                 <label htmlFor="">Пароль</label>
                 <input
-                  type="text"
+                  type="password"
                   name="password"
                   onChange={handleUserInput}
                   placeholder="Пароль"
