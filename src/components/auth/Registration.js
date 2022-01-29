@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import http from "../../http";
 import { ToastContainer, toast } from "react-toastify";
-import lStorage from "./LStorage";
 import { useNavigate } from "react-router-dom";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -12,7 +11,7 @@ export default function Registration() {
   const [user, setUser] = useState({
     username: null,
     password: null,
-    // conpassword: null,
+    conpassword: null,
     mailing: true,
   });
 
@@ -31,7 +30,7 @@ export default function Registration() {
 
   const submitForm = (e) => {
     e.preventDefault();
-    if (user.password) {
+    if (user.password === user.conpassword) {
       http
         .post("signup", user)
         .then((response) => {
