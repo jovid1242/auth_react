@@ -1,0 +1,64 @@
+.p_info {
+  width: 100%;
+
+  .title {
+    font-style: normal;
+    position: static !important;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 22px;
+    letter-spacing: 0.02em;
+    color: #1f1a2d;
+  }
+
+  .form {
+    margin-top: 10px;
+    .input_group {
+      margin-top: 10px;
+      input {
+        width: 100%;
+        height: 40px;
+      }
+      .__input {
+        width: 100%;
+        height: 54px;
+        outline: none;
+        padding: 0 20px;
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        box-sizing: border-box;
+        border-radius: 10px;
+
+        font-style: normal;
+        font-weight: 800;
+        font-size: 16px;
+        line-height: 24px;
+        /* identical to box height, or 150% */
+
+        letter-spacing: 0.02em;
+
+        color: #000000;
+      }
+    }
+    .form_btn {
+      margin-top: 10px;
+
+      button {
+        width: 100%;
+        height: 46px;
+        outline: none;
+        background: #366eff;
+        border: none;
+        border-radius: 10px;
+
+        font-style: normal;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 16px;
+        letter-spacing: 0.02em;
+
+        color: #ffffff;
+      }
+    }
+  }
+}
