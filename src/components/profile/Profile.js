@@ -9,14 +9,45 @@ import {
 
 import http from "../../http";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import CreatePersonalInfo from "../user/CreatePersonalInfo";
 import "../../styles/profile.scss";
 import CreateSkils from "../user/CreateSkils";
+
+const sexOption = [
+  {
+    value: 0,
+    label: "женский",
+  },
+  {
+    value: 1,
+    label: "мужской",
+  },
+];
+
+const personStatus = [
+  {
+    value: 1,
+    label: "Школьник",
+  },
+  {
+    value: 2,
+    label: "Студент",
+  },
+  {
+    value: 3,
+    label: "Специалист",
+  },
+];
 
 export default function Profile() {
   const [personalInfoModal, setPersonalInfoModal] = useState(false);
   const [skilsModal, setSkilsModal] = useState(false);
   const [personalInfo, setPersonalInso] = useState([]);
+
+  const notifySuccess = (txt) => toast.success(txt);
+  const notifyError = (txt) => toast.error(txt);
 
   const showPersonalInfoModal = () => {
     setPersonalInfoModal(true);
@@ -27,7 +58,7 @@ export default function Profile() {
   };
 
   const showSkilsModal = () => {
-    setPersonalInfoModal(true);
+    setSkilsModal(true);
   };
 
   const hideSkilsModal = () => {
@@ -40,7 +71,16 @@ export default function Profile() {
     });
   }, []);
 
-  console.log();
+  const removeSkil = (el) => {
+    http
+      .delete(`user/skill/${el.id}`)
+      .then((response) => {
+        notifySuccess("Успешно");
+      })
+      .catch((err) => {
+        notifyError(`Ошибка ${err.message}`);
+      });
+  };
 
   return (
     <div>
@@ -49,6 +89,7 @@ export default function Profile() {
         hideModal={hidePersonalInfoModal}
       />
       <CreateSkils visibily={skilsModal} hideModal={hideSkilsModal} />
+      <ToastContainer />
       <div className="pofile">
         <div className="left__box">
           <Header />
@@ -84,10 +125,10 @@ export default function Profile() {
                   </button>
                 </div>
                 <div className="btn">
-                  <button>Навыки</button>
+                  <button onClick={() => showSkilsModal()}>Навыки</button>
                 </div>
               </div>
-              {personalInfo?.personStatusId !== null ? (
+              {personalInfo?.personStatusId === null ? (
                 <div className="personal_info">
                   <div className="personal_info__head">
                     <p>Личные данные</p>
@@ -97,24 +138,24 @@ export default function Profile() {
                   </div>
                   <div className="region">
                     <span>
-                      <h4>RU</h4>
-                      <p>Россия</p>
+                      <h4>{personalInfo.location.languageCode}</h4>
+                      <p>{personalInfo.location.country}</p>
                     </span>
                     <span>
                       <p className="icon">
                         <FontAwesomeIcon icon={faMapMarkerAlt} />
                       </p>
-                      <p>Москва</p>
+                      <p>{personalInfo.location.region}</p>
                     </span>
                   </div>
                   <div className="user_personal_info">
-                    <p>Cтатус: Студент</p>
-                    <p>Возраст: 35 лет</p>
-                    <p>Cтатус: Студент</p>
+                    <p>Пол: {sexOption[personalInfo.sex]}</p>
+                    <p>Возраст:{personStatus.birthDate}</p>
+                    <p>Cтатус: {personStatus[personalInfo.personStatusId]}</p>
                   </div>
                 </div>
               ) : null}
-              {personalInfo?.skills?.langth === 0 ? (
+              {personalInfo.skills !== 0 ? (
                 <div className="skills">
                   <div className="skills__head">
                     <p>Личные данные</p>
@@ -123,9 +164,14 @@ export default function Profile() {
                     </span>
                   </div>
                   <div className="skills_btn">
-                    <button>developer</button>
-                    <button>js</button>
-                    <button>develdfvfdvoper</button>
+                    {personalInfo.skills?.map((el) => {
+                      return (
+                        <button key={el.id}>
+                          {el.name}{" "}
+                          <span onClick={() => removeSkil(el)}>{"x"}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               ) : null}

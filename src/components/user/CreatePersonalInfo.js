@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
+import { ToastContainer, toast } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
 
 import Modal from "../modal/Modal";
 import http from "../../http";
@@ -9,8 +12,40 @@ import "../../styles/createPersonalInfo.scss";
 const areaOptions = [];
 const countryOption = [];
 const citiOption = [];
+const sexOption = [
+  {
+    value: 0,
+    label: "женский",
+  },
+  {
+    value: 1,
+    label: "мужской",
+  },
+];
+
+const personStatus = [
+  {
+    value: 1,
+    label: "Школьник",
+  },
+  {
+    value: 2,
+    label: "Студент",
+  },
+  {
+    value: 3,
+    label: "Специалист",
+  },
+];
 
 export default function CreatePersonalInfo({ visibily, hideModal }) {
+  const [user, setUser] = useState({
+    firstname: null,
+    lastname: null,
+    patronymic: null,
+    birthDate: null,
+  });
+
   const [selectedcountryOption, setSelectedcountryOption] = useState({
     value: "Q159",
   });
@@ -20,6 +55,20 @@ export default function CreatePersonalInfo({ visibily, hideModal }) {
     regionCode: "VOR",
   });
   const [selectedCitiOption, setSelectedCitiOption] = useState(null);
+  const [selectedSexOption, setSelectedSexOption] = useState(null);
+  const [selectedPersonStatusOption, setSelectedPersonStatusOption] =
+    useState(null);
+
+  const notifySuccess = (txt) => toast.success(txt);
+  const notifyError = (txt) => toast.error(txt);
+
+  const handleUserInput = (e) => {
+    const name = e.target.name;
+    const value = e.target.value;
+    const data = user;
+    data[name] = value;
+    setUser(data);
+  };
 
   useEffect(() => {
     http
@@ -51,8 +100,9 @@ export default function CreatePersonalInfo({ visibily, hideModal }) {
           areaOptions.push({
             value: el.countryCode,
             label: el.name,
+            fipsCode: el.fipsCode,
             regionCode: el.isoCode,
-            name: el.name,
+            wikiDataId: el.wikiDataId,
           });
         });
       });
@@ -71,13 +121,64 @@ export default function CreatePersonalInfo({ visibily, hideModal }) {
           citiOption.push({
             value: el.countryCode,
             label: el.name,
+            id: el.id,
+            wikiDataId: el.wikiDataId,
+            type: el.type,
+            regionCode: el.regionCode,
+            countryCode: el.countryCode,
           });
         });
       });
   }, [selectAreaOptions]);
 
+  const submitForm = (e) => {
+    e.preventDefault();
+    http
+      .put("user/profile/personal", {
+        firstname: user.firstname,
+        lastname: user.lastname,
+        patronymic: user.patronymic,
+        sex: selectedSexOption.value,
+        birthDate: user.birthDate,
+        personStatusId: selectedPersonStatusOption.value,
+        languageCode: "RU",
+        location: {
+          languageCode: "RU",
+          country: {
+            code: selectedcountryOption.code,
+            currencyCodes: [selectedcountryOption.name],
+            name: selectedcountryOption.label,
+            wikiDataId: selectedcountryOption.value,
+          },
+          region: {
+            countryCode: selectAreaOptions.value,
+            fipsCode: selectAreaOptions.fipsCode,
+            isoCode: selectAreaOptions.isoCode,
+            name: selectAreaOptions.label,
+            wikiDataId: selectAreaOptions.wikiDataId,
+          },
+          city: {
+            id: selectedCitiOption.id,
+            wikiDataId: selectedCitiOption.wikiDataId,
+            type: selectedCitiOption.type,
+            city: selectedCitiOption.city,
+            name: selectedCitiOption.label,
+            regionCode: selectedCitiOption.regionCode,
+            countryCode: selectedCitiOption.countryCode,
+          },
+        },
+      })
+      .then((response) => {
+        notifySuccess("Успешно");
+      })
+      .catch((err) => {
+        notifyError("Ошибка", err);
+      });
+  };
+
   return (
     <div>
+      <ToastContainer />
       <Modal
         visibily={visibily}
         hide={hideModal}
@@ -88,23 +189,41 @@ export default function CreatePersonalInfo({ visibily, hideModal }) {
               Если ты заполнишь это поле, то получишь возможности общаться с
               людьми, получать бонусы
             </p>
-            <form className="form">
+            <form className="form" onSubmit={submitForm}>
               <div className="input_group">
-                <input type="text" className="__input" placeholder="Фамилия" />
+                <input
+                  type="text"
+                  name="firstname"
+                  onChange={handleUserInput}
+                  className="__input"
+                  placeholder="Фамилия"
+                />
               </div>
               <div className="input_group">
-                <input type="text" className="__input" placeholder="Имя" />
+                <input
+                  type="text"
+                  className="__input"
+                  name="lastname"
+                  onChange={handleUserInput}
+                  placeholder="Имя"
+                />
               </div>
               <div className="input_group">
-                <input type="text" className="__input" placeholder="Отчество" />
+                <input
+                  type="text"
+                  className="__input"
+                  name="patronymic"
+                  onChange={handleUserInput}
+                  placeholder="Отчество"
+                />
               </div>
               <div className="input_group">
-                {/* <Select
-                  defaultValue={selectedOption}
-                  onChange={setSelectedOption}
-                  options={selectedOption}
+                <Select
+                  defaultValue={selectedSexOption}
+                  onChange={setSelectedSexOption}
+                  options={sexOption}
                   placeholder="Пол"
-                /> */}
+                />
               </div>
               <div className="input_group">
                 <input
@@ -116,12 +235,12 @@ export default function CreatePersonalInfo({ visibily, hideModal }) {
                 ></input>
               </div>
               <div className="input_group">
-                {/* <Select
-                  defaultValue={selectedOption}
-                  onChange={setSelectedOption}
-                  options={selectedOption}
+                <Select
+                  defaultValue={selectedPersonStatusOption}
+                  onChange={setSelectedPersonStatusOption}
+                  options={personStatus}
                   placeholder="Статус"
-                /> */}
+                />
               </div>
               <div className="input_group">
                 <Select
